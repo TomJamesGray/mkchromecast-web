@@ -1,8 +1,11 @@
 package com.gray.mkchromecastweb;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.HandlerMapping;
 
 import javax.servlet.http.HttpServlet;
@@ -11,19 +14,36 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 @RestController
 public class BrowseController {
-    private static final String LIST_BASE_URL = "/list/";
-    @GetMapping("/list/**")
-    public Map<String, Object> getVideos(HttpServletRequest request){
-        String fullPath = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
-        System.out.println(Arrays.toString(extractLocalPathFromURL(fullPath)));
+    private static final Logger LOGGER = Logger.getLogger( BrowseController.class.getName() );
+    static final String LIST_BASE_URL = "/api/list/";
 
-        return Collections.emptyMap();
+    @Autowired
+    private VideoStore videoStore;
+
+    @GetMapping(LIST_BASE_URL + "**")
+    public String[] getVideos(HttpServletRequest request) {
+        String fullPath = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
+        String [] fileList = getFilesFromPath(fullPath);
+
+        if (fileList == null){
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "Path not found"
+            );
+        }
+
+        return fileList;
     }
 
-    public String[] extractLocalPathFromURL(String fullPath){
-        return fullPath.substring(LIST_BASE_URL.length()).split("//");
+    public String[] getFilesFromPath(String fullPath){
+        return videoStore.getVideosAndDirectories(extractLocalPathFromURL(fullPath));
+    }
+
+    public static String[] extractLocalPathFromURL(String fullPath){
+        System.out.println("HI2");
+        return fullPath.substring(LIST_BASE_URL.length()).split("/");
     }
 }
