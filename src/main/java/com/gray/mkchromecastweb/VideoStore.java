@@ -5,11 +5,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class VideoStore {
-    private static final String FILE_LOCATION = "/home/tom/Desktop";
+    private static final String FILE_LOCATION = "/home/tom/Videos";
 
-    public static Map<String, Object> getAllVideos(){
+    public static String[] getVideosAndDirectories(String path){
         File f = new File(FILE_LOCATION);
         String[] fileNames = f.list();
-        return Map.of("/",fileNames);
+        if (fileNames == null){
+            return new String[1];
+        }
+        else{
+            return fileNames;
+        }
     }
 }
