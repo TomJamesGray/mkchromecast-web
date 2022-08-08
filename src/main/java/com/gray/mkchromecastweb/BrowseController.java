@@ -3,6 +3,7 @@ package com.gray.mkchromecastweb;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
@@ -25,7 +26,9 @@ public class BrowseController {
     private VideoStore videoStore;
 
     @GetMapping(LIST_BASE_URL + "**")
+    @CrossOrigin(origins = "http://localhost:3000")
     public String[] getVideos(HttpServletRequest request) {
+        System.out.println("REQUEST");
         String fullPath = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
         String [] fileList = getFilesFromPath(fullPath);
 
@@ -43,7 +46,6 @@ public class BrowseController {
     }
 
     public static String[] extractLocalPathFromURL(String fullPath){
-        System.out.println("HI2");
         return fullPath.substring(LIST_BASE_URL.length()).split("/");
     }
 }
